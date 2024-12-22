@@ -4,6 +4,7 @@ library(shinydashboard)
 library(ggplot2)
 library(dplyr)
 library(DT)
+library(plotly)
 
 # Load the DIG dataset
 dig_data <- read.csv("DIG.csv")
@@ -13,6 +14,15 @@ dig_data<- dig_data|>select(ID,TRTMT,AGE,SEX,BMI,KLEVEL,CREAT,DIABP,SYSBP,HYPERT
 #conversion of numerical colums , factor variables are converted in the Task 2 
 dig_data[,c("AGE","BMI","KLEVEL","CREAT","DIABP","SYSBP","HOSPDAYS","DEATHDAY")]<- lapply(dig_data[,c("AGE","BMI","KLEVEL","CREAT","DIABP","SYSBP","HOSPDAYS","DEATHDAY")],function(column){as.numeric(column)}) 
 
+
+dig_data$TRTMT<- factor(dig_data$TRTMT,levels = c(0,1), labels = c("Placebo","Treatment") )
+dig_data$SEX<- factor(dig_data$SEX,levels = c(1,2), labels = c("Male","Female") )
+dig_data$DEATH<- factor(dig_data$DEATH,levels = c(0,1), labels = c("Alive","Death") )
+dig_data$HYPERTEN<- factor(dig_data$HYPERTEN,levels = c(0,1), labels = c("NO HYPERTEN","HYPERTEN") )
+dig_data$CVD<- factor(dig_data$CVD,levels = c(0,1), labels = c("NO CVD","CVD") )
+dig_data$WHF<- factor(dig_data$WHF,levels = c(0,1), labels = c("NO WHF","WHF") )
+dig_data$HOSP<- factor(dig_data$HOSP,levels = c(0,1), labels = c("NO HOSP","HOSP") )
+dig_data$DIG<- factor(dig_data$DIG,levels = c(0,1), labels = c("NO DIG TOX","DIG TOX") )
 
 
 # Define UI
