@@ -5,7 +5,7 @@ library(ggplot2)
 library(dplyr)
 library(DT)
 library(plotly)
-
+############### 
 # Load the DIG dataset
 dig_data <- read.csv("DIG.csv")
 ##data cleaning#####################################################################################################
