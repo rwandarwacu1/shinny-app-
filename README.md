@@ -7,7 +7,7 @@ library(survival)
 library(survminer)
 library(plotly)
 
-# Load the DIG dataset change it 
+# Load the DIG dataset  
 dig_data <- read.csv("DIG.csv")
 ##data cleaning
 
@@ -15,8 +15,35 @@ dig_data <- read.csv("DIG.csv")
 
 #conversion of numerical colums , factor variables are converted in the Task 2 
 
-dig_data[,c("AGE","BMI","KLEVEL","CREAT","DIABP","SYSBP","HOSPDAYS","DEATHDAY")]<- lapply(dig_data[,c("AGE","BMI","KLEVEL","CREAT","DIABP","SYSBP","HOSPDAYS","DEATHDAY")],function(column){as.numeric(column)}) 
+#dig_data[,c("AGE","BMI","KLEVEL","CREAT","DIABP","SYSBP","HOSPDAYS","DEATHDAY")]<- lapply(dig_data[,c("AGE","BMI","KLEVEL","CREAT","DIABP","SYSBP","HOSPDAYS","DEATHDAY")],function(column){as.numeric(column)}) 
 
+selected_vars <- c("ID", "TRTMT", "AGE", "SEX", "BMI", "KLEVEL", "CREAT", "DIABP", "SYSBP",
+                   "HYPERTEN", "CVD", "WHF", "DIG", "HOSP", "HOSPDAYS", "DEATH", "DEATHDAY")
+dig.df <- dig.df %>%
+  select(all_of(selected_vars))
+
+# Convert columns to the most relevant data types
+dig.df <- dig.df %>%
+  mutate(
+    ID = as.character(ID),
+    TRTMT = as.factor(TRTMT),
+    AGE = as.numeric(AGE),
+    SEX = as.factor(SEX),
+    BMI = as.numeric(BMI),
+    KLEVEL = as.numeric(KLEVEL),
+    CREAT = as.numeric(CREAT),
+    DIABP = as.numeric(DIABP),
+    SYSBP = as.numeric(SYSBP),
+    HYPERTEN = as.factor(HYPERTEN),
+    CVD = as.factor(CVD),
+    WHF = as.factor(WHF),
+    DIG = as.factor(DIG),
+    HOSP = as.factor(HOSP),
+    HOSPDAYS = as.numeric(HOSPDAYS),
+    DEATH = as.factor(DEATH),
+    DEATHDAY = as.numeric(DEATHDAY)
+  )
+  
 dig_data$TRTMT<- factor(dig_data$TRTMT,levels = c(0,1), labels = c("Placebo","Treatment") )
 dig_data$SEX<- factor(dig_data$SEX,levels = c(1,2), labels = c("Male","Female") )
 dig_data$DEATH<- factor(dig_data$DEATH,levels = c(0,1), labels = c("Alive","Death") )
