@@ -9,10 +9,12 @@ library(plotly)
 
 # Load the DIG dataset
 dig_data <- read.csv("DIG.csv")
-##data cleaning#####################################################################################################
+##data cleaning
+
 #dig_data<- dig_data|>select(ID,TRTMT,AGE,SEX,BMI,KLEVEL,CREAT,DIABP,SYSBP,HYPERTEN,CVD,WHF,DIG,HOSP,HOSPDAYS, DEATH,DEATHDAY)
 
 #conversion of numerical colums , factor variables are converted in the Task 2 
+
 dig_data[,c("AGE","BMI","KLEVEL","CREAT","DIABP","SYSBP","HOSPDAYS","DEATHDAY")]<- lapply(dig_data[,c("AGE","BMI","KLEVEL","CREAT","DIABP","SYSBP","HOSPDAYS","DEATHDAY")],function(column){as.numeric(column)}) 
 
 dig_data$TRTMT<- factor(dig_data$TRTMT,levels = c(0,1), labels = c("Placebo","Treatment") )
@@ -24,7 +26,7 @@ dig_data$WHF<- factor(dig_data$WHF,levels = c(0,1), labels = c("NO WHF","WHF") )
 dig_data$HOSP<- factor(dig_data$HOSP,levels = c(0,1), labels = c("NO HOSP","HOSP") )
 dig_data$DIG<- factor(dig_data$DIG,levels = c(0,1), labels = c("NO DIG TOX","DIG TOX") )
 
-##########################################################################################################################
+
 # Define UI
 ui <- dashboardPage(
   dashboardHeader(title = "DIG Trial Data Explorer"),
