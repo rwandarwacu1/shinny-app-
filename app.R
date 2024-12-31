@@ -9,9 +9,9 @@ library(survminer)
 library(plotly)
 
 # Load the DIG 
-dig_data <- read.csv("shinny-app-Athi-victor-/DIG.csv")
+dig_data <- read.csv("DIG.csv")
 
-##data cleaning#####################################################################################################
+##data processing#####################################################################################################
 
 #conversion of numerical columns 
 numerical_columns <- c("AGE", "BMI", "KLEVEL", "CREAT", "DIABP", "SYSBP", "HOSPDAYS", "DEATHDAY", 
@@ -234,3 +234,5 @@ server <- function(input, output, session) {
 
 # Run the application
 shinyApp(ui = ui, server = server)
+
+
