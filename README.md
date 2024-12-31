@@ -7,7 +7,7 @@ library(survival)
 library(survminer)
 library(plotly)
 
-# Load the DIG dataset  
+# Load the DIG dataset  deliver
 dig_data <- read.csv("DIG.csv")
 ##data cleaning
 
