@@ -79,7 +79,7 @@ ui <- dashboardPage(
       tabItem(tabName = "variables",
               fluidRow(
                 box(title = "Variable Selection", width = 4, status = "info",
-                    selectInput("var_select", "Choose a variable:", choices = sort(names(dig_data))),
+                    selectInput("var_select", "Choose a variable:", choices = c("Select", sort(names(dig_data)))),
                     checkboxInput("show_summary", "Show Summary Statistics", value = TRUE),
                     uiOutput("filter_ui")),
                 box(title = "Visualization", width = 8, status = "primary",
@@ -92,8 +92,8 @@ ui <- dashboardPage(
       tabItem(tabName = "outcomes",
               fluidRow(
                 box(title = "Relationship Analysis", width = 4, status = "info",
-                    selectInput("x_var", "X-axis Variable:", choices = sort(names(dig_data))),
-                    selectInput("y_var", "Y-axis Variable:", choices = sort(names(dig_data))),
+                    selectInput("x_var", "X-axis Variable:", choices = c("Select", sort(names(dig_data)))),
+                    selectInput("y_var", "Y-axis Variable:", choices = c("Select", sort(names(dig_data)))),
                     selectInput("plot_type", "Select Plot Type:", choices = c("Scatter Plot", "Density Plot", "Boxplot", "Violin Plot", "Bar Chart", "Histogram"), selected = "Scatter Plot"),
                     checkboxGroupInput("group_vars", "Group by (optional):", choices = sort(names(dig_data)), inline = TRUE),
                     checkboxInput("facet_wrap", "Enable Facet Wrap", value = FALSE),
@@ -119,7 +119,7 @@ server <- function(input, output, session) {
   
   # Dynamic filter UI
   output$filter_ui <- renderUI({
-    req(input$var_select)
+    req(input$var_select != "Select")
     if (is.factor(dig_data[[input$var_select]]) || is.character(dig_data[[input$var_select]])) {
       selectInput("filter_value", paste("Filter", input$var_select, ":"),
                   choices = unique(dig_data[[input$var_select]]), multiple = TRUE)
@@ -138,7 +138,7 @@ server <- function(input, output, session) {
   
   # Variable Visualization
   output$var_plot <- renderPlotly({
-    req(input$var_select)
+    req(input$var_select != "Select")
     data <- filtered_data()
     plot <- if (is.numeric(data[[input$var_select]])) {
       ggplot(data, aes_string(x = input$var_select)) +
@@ -163,7 +163,7 @@ server <- function(input, output, session) {
   # Dynamic Plot Selection
   observeEvent(input$plot_button, {
     output$dynamic_plot <- renderPlotly({
-      req(input$x_var)
+      req(input$x_var != "Select", input$y_var != "Select")
       data <- filtered_data()
       plot <- NULL
       if (input$plot_type == "Scatter Plot") {
@@ -171,7 +171,8 @@ server <- function(input, output, session) {
           geom_point(color = "red", alpha = 0.6) +
           theme_minimal() +
           labs(title = paste("Scatter Plot of", input$y_var, "vs", input$x_var),
-               x = input$x_var, y = input$y_var)
+               x = input$x_var, y = input$y_var) +
+          theme(legend.position = "right")
         if (input$facet_wrap && !is.null(input$group_vars) && length(input$group_vars) > 0) {
           plot <- plot + facet_wrap(as.formula(paste("~", paste(input$group_vars, collapse = "+"))))
         }
@@ -198,7 +199,8 @@ server <- function(input, output, session) {
           geom_bar(position = "dodge") +
           theme_minimal() +
           labs(title = paste("Bar Chart of", input$x_var, "by", input$y_var),
-               x = input$x_var, y = "Count")
+               x = input$x_var, y = "Count")+
+          guides(fill = guide_legend(title = "Categories"))
       } else if (input$plot_type == "Histogram") {
         plot <- ggplot(data, aes_string(x = input$x_var)) +
           geom_histogram(bins = 30, fill = "green", color = "black") +
