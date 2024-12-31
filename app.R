@@ -8,7 +8,7 @@ library(survival)
 library(survminer)
 library(plotly)
 
-# Load the DIG dataset status 
+# Load the DIG 
 dig_data <- read.csv("shinny-app-Athi-victor-/DIG.csv")
 
 ##data cleaning#####################################################################################################
