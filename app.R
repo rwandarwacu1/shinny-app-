@@ -96,7 +96,7 @@ ui <- dashboardPage(
                     selectInput("y_var", "Y-axis Variable:", choices = c("Select", sort(names(dig_data)))),
                     selectInput("plot_type", "Select Plot Type:", choices = c("Scatter Plot", "Density Plot", "Boxplot", "Violin Plot", "Bar Chart", "Histogram"), selected = "Scatter Plot"),
                     checkboxGroupInput("group_vars", "Group by (optional):", choices = sort(names(dig_data)), inline = TRUE),
-                    checkboxInput("facet_wrap", "Enable Facet Wrap", value = FALSE),
+                    checkboxInput("facet_wrap", "Enable Facet Wrap", value = TRUE),
                     actionButton("plot_button", "Generate Plot")),
                 box(title = "Interactive Plot", width = 8, status = "primary",
                     plotlyOutput("dynamic_plot"))
@@ -146,10 +146,14 @@ server <- function(input, output, session) {
         theme_minimal() +
         labs(title = paste("Distribution of", input$var_select), x = input$var_select, y = "Count")
     } else {
-      ggplot(data, aes_string(x = input$var_select)) +
-        geom_bar(fill = "skyblue", color = "black") +
+      ggplot(data, aes_string(x = input$var_select, fill = input$var_select)) +
+        geom_bar(color = "black") +
         theme_minimal() +
-        labs(title = paste("Distribution of", input$var_select), x = input$var_select, y = "Count")
+        labs(title = paste("Bar Plot of", input$var_select), x = input$var_select, y = "Count") +
+        guides(fill = guide_legend(title = "Categories"))
+    }
+    if (!is.null(input$group_vars) && length(input$group_vars) > 0) {
+      plot <- plot + facet_wrap(as.formula(paste("~", paste(input$group_vars, collapse = "+"))))
     }
     ggplotly(plot)
   })
@@ -173,7 +177,7 @@ server <- function(input, output, session) {
           labs(title = paste("Scatter Plot of", input$y_var, "vs", input$x_var),
                x = input$x_var, y = input$y_var) +
           theme(legend.position = "right")
-        if (input$facet_wrap && !is.null(input$group_vars) && length(input$group_vars) > 0) {
+        if (!is.null(input$group_vars) && length(input$group_vars) > 0) {
           plot <- plot + facet_wrap(as.formula(paste("~", paste(input$group_vars, collapse = "+"))))
         }
       } else if (input$plot_type == "Density Plot") {
@@ -182,18 +186,27 @@ server <- function(input, output, session) {
           theme_minimal() +
           labs(title = paste("Density Plot of", input$x_var, "by", input$y_var),
                x = input$x_var, y = "Density")
+        if (!is.null(input$group_vars) && length(input$group_vars) > 0) {
+          plot <- plot + facet_wrap(as.formula(paste("~", paste(input$group_vars, collapse = "+"))))
+        }
       } else if (input$plot_type == "Boxplot") {
         plot <- ggplot(data, aes_string(x = input$y_var, y = input$x_var)) +
           geom_boxplot(fill = "orange", color = "black") +
           theme_minimal() +
           labs(title = paste("Boxplot of", input$x_var, "by", input$y_var),
                x = input$y_var, y = input$x_var)
+        if (!is.null(input$group_vars) && length(input$group_vars) > 0) {
+          plot <- plot + facet_wrap(as.formula(paste("~", paste(input$group_vars, collapse = "+"))))
+        }
       } else if (input$plot_type == "Violin Plot") {
         plot <- ggplot(data, aes_string(x = input$y_var, y = input$x_var)) +
           geom_violin(fill = "purple", color = "black") +
           theme_minimal() +
           labs(title = paste("Violin Plot of", input$x_var, "by", input$y_var),
                x = input$y_var, y = input$x_var)
+        if (!is.null(input$group_vars) && length(input$group_vars) > 0) {
+          plot <- plot + facet_wrap(as.formula(paste("~", paste(input$group_vars, collapse = "+"))))
+        }
       } else if (input$plot_type == "Bar Chart") {
         plot <- ggplot(data, aes_string(x = input$x_var, fill = input$y_var)) +
           geom_bar(position = "dodge") +
@@ -201,11 +214,18 @@ server <- function(input, output, session) {
           labs(title = paste("Bar Chart of", input$x_var, "by", input$y_var),
                x = input$x_var, y = "Count")+
           guides(fill = guide_legend(title = "Categories"))
+        if (!is.null(input$group_vars) && length(input$group_vars) > 0) {
+          plot <- plot + facet_wrap(as.formula(paste("~", paste(input$group_vars, collapse = "+"))))
+        }
+        
       } else if (input$plot_type == "Histogram") {
         plot <- ggplot(data, aes_string(x = input$x_var)) +
           geom_histogram(bins = 30, fill = "green", color = "black") +
           theme_minimal() +
           labs(title = paste("Histogram of", input$x_var), x = input$x_var, y = "Frequency")
+        if (!is.null(input$group_vars) && length(input$group_vars) > 0) {
+          plot <- plot + facet_wrap(as.formula(paste("~", paste(input$group_vars, collapse = "+"))))
+        }
       }
       ggplotly(plot)
     })
