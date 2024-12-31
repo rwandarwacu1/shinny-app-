@@ -12,19 +12,46 @@ library(plotly)
 dig_data <- read.csv("shinny-app-Athi-victor-/DIG.csv")
 
 ##data cleaning#####################################################################################################
-#dig_data<- dig_data|>select(ID,TRTMT,AGE,SEX,BMI,KLEVEL,CREAT,DIABP,SYSBP,HYPERTEN,CVD,WHF,DIG,HOSP,HOSPDAYS, DEATH,DEATHDAY)
 
-#conversion of numerical colums , factor variables are converted in the Task 2 
-dig_data[,c("AGE","BMI","KLEVEL","CREAT","DIABP","SYSBP","HOSPDAYS","DEATHDAY")]<- lapply(dig_data[,c("AGE","BMI","KLEVEL","CREAT","DIABP","SYSBP","HOSPDAYS","DEATHDAY")],function(column){as.numeric(column)}) 
+#conversion of numerical columns 
+numerical_columns <- c("AGE", "BMI", "KLEVEL", "CREAT", "DIABP", "SYSBP", "HOSPDAYS", "DEATHDAY", 
+                       "EJF_PER", "CHESTX", "DIGDOSER", "CHFDUR", "HEARTRTE")
+dig_data[, numerical_columns] <- lapply(dig_data[, numerical_columns], as.numeric)
 
-dig_data$TRTMT<- factor(dig_data$TRTMT,levels = c(0,1), labels = c("Placebo","Treatment") )
-dig_data$SEX<- factor(dig_data$SEX,levels = c(1,2), labels = c("Male","Female") )
-dig_data$DEATH<- factor(dig_data$DEATH,levels = c(0,1), labels = c("Alive","Death") )
-dig_data$HYPERTEN<- factor(dig_data$HYPERTEN,levels = c(0,1), labels = c("NO HYPERTEN","HYPERTEN") )
-dig_data$CVD<- factor(dig_data$CVD,levels = c(0,1), labels = c("NO CVD","CVD") )
-dig_data$WHF<- factor(dig_data$WHF,levels = c(0,1), labels = c("NO WHF","WHF") )
-dig_data$HOSP<- factor(dig_data$HOSP,levels = c(0,1), labels = c("NO HOSP","HOSP") )
-dig_data$DIG<- factor(dig_data$DIG,levels = c(0,1), labels = c("NO DIG TOX","DIG TOX") )
+# Conversion of categorical columns to factors
+dig_data$TRTMT <- factor(dig_data$TRTMT, levels = c(0, 1), labels = c("Placebo", "Treatment"))
+dig_data$SEX <- factor(dig_data$SEX, levels = c(1, 2), labels = c("Male", "Female"))
+dig_data$DEATH <- factor(dig_data$DEATH, levels = c(0, 1), labels = c("Alive", "Death"))
+dig_data$HYPERTEN <- factor(dig_data$HYPERTEN, levels = c(0, 1), labels = c("NO HYPERTEN", "HYPERTEN"))
+dig_data$CVD <- factor(dig_data$CVD, levels = c(0, 1), labels = c("NO CVD", "CVD"))
+dig_data$WHF <- factor(dig_data$WHF, levels = c(0, 1), labels = c("NO WHF", "WHF"))
+dig_data$HOSP <- factor(dig_data$HOSP, levels = c(0, 1), labels = c("NO HOSP", "HOSP"))
+dig_data$DIG <- factor(dig_data$DIG, levels = c(0, 1), labels = c("NO DIG TOX", "DIG TOX"))
+dig_data$RACE <- factor(dig_data$RACE, levels = c(1, 2), labels = c("White", "Nonwhite"))
+
+dig_data$FUNCTCLS <- factor(dig_data$FUNCTCLS, levels = c(1, 2, 3, 4), labels = c("Class I", "Class II", "Class III", "Class IV"))
+dig_data$CHFETIOL <- factor(dig_data$CHFETIOL, levels = c(1, 2, 3), labels = c("Ischemic", "Non-ischemic", "Unknown"))
+dig_data$PREVMI <- factor(dig_data$PREVMI, levels = c(0, 1), labels = c("No", "Yes"))
+dig_data$ANGINA <- factor(dig_data$ANGINA, levels = c(0, 1), labels = c("No", "Yes"))
+dig_data$DIABETES <- factor(dig_data$DIABETES, levels = c(0, 1), labels = c("No", "Yes"))
+dig_data$DIGUSE <- factor(dig_data$DIGUSE, levels = c(0, 1), labels = c("No", "Yes"))
+dig_data$DIURETK <- factor(dig_data$DIURETK, levels = c(0, 1), labels = c("No", "Yes"))
+dig_data$DIURET <- factor(dig_data$DIURET, levels = c(0, 1), labels = c("No", "Yes"))
+dig_data$ACEINHIB <- factor(dig_data$ACEINHIB, levels = c(0, 1), labels = c("No", "Yes"))
+dig_data$NITRATES <- factor(dig_data$NITRATES, levels = c(0, 1), labels = c("No", "Yes"))
+dig_data$HYDRAL <- factor(dig_data$HYDRAL, levels = c(0, 1), labels = c("No", "Yes"))
+dig_data$VASOD <- factor(dig_data$VASOD, levels = c(0, 1), labels = c("No", "Yes"))
+dig_data$MI <- factor(dig_data$MI, levels = c(0, 1), labels = c("No", "Yes"))
+dig_data$UANG <- factor(dig_data$UANG, levels = c(0, 1), labels = c("No", "Yes"))
+dig_data$STRK <- factor(dig_data$STRK, levels = c(0, 1), labels = c("No", "Yes"))
+dig_data$SVA <- factor(dig_data$SVA, levels = c(0, 1), labels = c("No", "Yes"))
+dig_data$VENA <- factor(dig_data$VENA, levels = c(0, 1), labels = c("No", "Yes"))
+dig_data$CREV <- factor(dig_data$CREV, levels = c(0, 1), labels = c("No", "Yes"))
+dig_data$OCVD <- factor(dig_data$OCVD, levels = c(0, 1), labels = c("No", "Yes"))
+dig_data$RINF <- factor(dig_data$RINF, levels = c(0, 1), labels = c("No", "Yes"))
+dig_data$OTH <- factor(dig_data$OTH, levels = c(0, 1), labels = c("No", "Yes"))
+
+dig_data$DWHF <- factor(dig_data$DWHF, levels = c(0, 1), labels = c("No", "Yes"))
 
 ##########################################################################################################################
 # Define UI
@@ -141,7 +168,7 @@ server <- function(input, output, session) {
       plot <- NULL
       if (input$plot_type == "Scatter Plot") {
         plot <- ggplot(data, aes_string(x = input$x_var, y = input$y_var)) +
-          geom_point(color = "blue", alpha = 0.6) +
+          geom_point(color = "red", alpha = 0.6) +
           theme_minimal() +
           labs(title = paste("Scatter Plot of", input$y_var, "vs", input$x_var),
                x = input$x_var, y = input$y_var)
@@ -174,7 +201,7 @@ server <- function(input, output, session) {
                x = input$x_var, y = "Count")
       } else if (input$plot_type == "Histogram") {
         plot <- ggplot(data, aes_string(x = input$x_var)) +
-          geom_histogram(bins = 30, fill = "blue", color = "white") +
+          geom_histogram(bins = 30, fill = "green", color = "black") +
           theme_minimal() +
           labs(title = paste("Histogram of", input$x_var), x = input$x_var, y = "Frequency")
       }
